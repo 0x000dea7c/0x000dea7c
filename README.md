@@ -2,10 +2,7 @@
 class me final
 {
 public:
-  me ()
-  {
-    __builtin_printf ("I was born... and with, it my hopes of finishing my projects vanished faster than a local variable.\n");
-  }
+  me () = default;
 
   void
   introduce () const
@@ -17,10 +14,7 @@ public:
     __builtin_printf ("...which is about as likely as finding the sqrt of -1 in the real world.\n");
   }
 
-  ~me ()
-  {
-    __builtin_printf ("\nThen I died, just like my previous projects, leaving behind a trail of memory leaks.\n");
-  }
+  ~me () = default;
 };
 
 int
