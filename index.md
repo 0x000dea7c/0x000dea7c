@@ -20,8 +20,14 @@ main()
 
 Testing some math formulae:
 
-$$H = \frac{n}{\frac{1}{x_1} + \frac{1}{x_2} + \cdots + \frac{1}{x_n}}$$
+$$
+H = \frac{n}{\frac{1}{x_1} + \frac{1}{x_2} + \cdots + \frac{1}{x_n}}
+$$
 
-$$S = \frac{n (n + 1)}{2}$$
+$$
+S = \frac{n (n + 1)}{2}
+$$
 
-$$S = \frac{x^n - 1}{x - 1}$$
+$$
+S = \frac{x^n - 1}{x - 1}
+$$
