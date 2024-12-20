@@ -4,3 +4,5 @@ plugins:
 
 title: Dumb Thoughts and Explanations
 description: Keep track of what I'm learning
+
+markdown: kramdown # please render math formulae
