@@ -1,3 +1,5 @@
+{% include head.html %}
+
 ---
 title: "First Blog Post Test"
 date: 2024-12-20
