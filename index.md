@@ -1,9 +1,10 @@
-{% include head.html %}
-
 ---
+layout: default
 title: "First Blog Post Test"
 date: 2024-12-20
 ---
+
+{% include head.html %}
 
 # First Blog Post Test
 
