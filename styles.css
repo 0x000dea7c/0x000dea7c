@@ -9,17 +9,16 @@ body {
 
 @media screen and (max-width: 600px) {
     body {
-        padding: 10px; /* Reduce padding for phones */
+        padding: 10px;
     }
 
     .content {
-        max-width: 100%; /* Ensure content spans full width on mobile */
-        padding: 10px; /* Adjust padding for mobile */
+        max-width: 100%;
+        padding: 10px;
     }
 
-    /* Adjust font size for better readability on mobile */
     pre, code {
-        font-size: 12px; /* Make code font size larger for mobile */
+        font-size: 12px;
     }
 }
 
@@ -68,6 +67,7 @@ body {
 .articles {
     border: 1px solid #00FF00;
     padding: 20px;
+    overflow-x: auto;           /* idk what this does lol */
 }
 
 a {
@@ -108,4 +108,20 @@ h4 {
     font-size: 1.3em; /* Slightly increase size */
     margin: 20px 0 10px 0; /* Add some spacing */
     padding-bottom: 5px;
+}
+
+.articles pre {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    background: #1a1a1a;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 4px;
+}
+
+.articles pre code {
+    white-space: pre; /* Keep original formatting */
+    display: block; /* Treat code as block for easier styling */
+    overflow-wrap: normal;
 }

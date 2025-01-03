@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Creating a Window in SDL3</title>
     <link rel="stylesheet" href="styles.css">
   </head>
@@ -27,13 +28,9 @@
         <p>The first thing I have to do is to initialise SDL, just like in SDL2. However, in SDL3 the signature of the <i>SDL_Init</i> function slightly changed.</p>
         <p>Now it returns a <i>bool</i> value, not an <i>int</i>. Because of this, to check if something went wrong, I need to see if the result of the function call returns <i>false</i>.</p>
         <br>
-        <pre>
-          <code>
-            if (!SDL_Init(SDL_INIT_VIDEO)) {
-                    panic_and_abort("SDL_Init", SDL_GetError());
-            }
-          </code>
-        </pre>
+<pre><code>if (!SDL_Init(SDL_INIT_VIDEO)) {
+        panic_and_abort("SDL_Init", SDL_GetError());
+}</code></pre>
         <p><i>panic_and_abort</i> is just a handy function I created that prints a message and calls <i>exit(EXIT_FAILURE)</i> because, what am I going to do when initialising SDL fails?</p>
       </div>
       <h4 id="creat_win">Creating a Window</h4>
@@ -41,75 +38,59 @@
         <p>Three ways of doing it AFAIK: <i>SDL_CreateWindow</i>, <i>SDL_CreateWindowAndRenderer</i> or <i>SDL_CreateWindowWithProperties</i>.</p>
         <p>The first two have slighly changed in SDL3.</p>
         <p><i>SDL_CreateWindow</i> used to accept the window position as an argument. Not anymore. It has been simplified. However, if I want to specify the position, I can still do it by calling <i>SDL_CreateWindowWithProperties</i>. Be sure to check out window flags, some have changed, e.g. <i>SDL_WINDOW_SHOWN</i> doesn't exist anymore.</p>
-        <pre>
-          <code>
-            SDL_Window *window = SDL_CreateWindow("Lain", 800, 600, 0);
-            if (!window) {
-                    panic_and_abort("SDL_CreateWindow", SDL_GetError());
-	    }
-          </code>
-        </pre>
+<pre><code>SDL_Window *window = SDL_CreateWindow("Lain", 800, 600, 0);
+if (!window) {
+        panic_and_abort("SDL_CreateWindow", SDL_GetError());
+}</code></pre>
         <p><i>SDL_CreateWindowAndRenderer</i> now takes the window title as the first parameter.</p>
-        <pre>
-          <code>
-            SDL_Window *window = NULL;
-            SDL_Renderer *renderer = NULL;
-            if (!SDL_CreateWindowAndRenderer("Lain", 800, 600, 0, &window, &renderer)) {
-	            panic_and_abort("SDL_CreateWindowAndRenderer", SDL_GetError());
-	    }
-          </code>
-        </pre>
+<pre><code>SDL_Window *window = NULL;
+SDL_Renderer *renderer = NULL;
+if (!SDL_CreateWindowAndRenderer("Lain", 800, 600, 0, &window, &renderer)) {
+        panic_and_abort("SDL_CreateWindowAndRenderer", SDL_GetError());
+}</code></pre>
       </div>
       <h4 id="events">Handling Events (basics)</h4>
       <div class="articles">
         <p>Names of events have changed. Now they are clearer.</p>
         <p>The rest is pretty much the same. I need to create an SDL_Event, poll and process.</p>
-        <pre>
-          <code>
-	    SDL_Event event;
-            bool quit = false;
+<pre><code>SDL_Event event;
+bool quit = false;
 
-	    while (!quit) {
-                    while (SDL_PollEvent(&event)) {
-	                    if (event.type == SDL_EVENT_QUIT) {
-                                    quit = true;
-	                            break;
-	                    }
-	            }
-	    }
-          </code>
-        </pre>
+while (!quit) {
+        while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_EVENT_QUIT) {
+                        quit = true;
+                        break;
+                }
+        }
+}</code></pre>
         <p>Notice how <i>SDL_QUIT</i> was renamed to <i>SDL_EVENT_QUIT</i>.</p>
         <p>Some things also changed when handling key presses. The way to do it now is as follows:</p>
-        <pre>
-          <code>
-	    SDL_Event event;
-            bool quit = false;
+<pre><code>SDL_Event event;
+bool quit = false;
 
-	    while (!quit) {
-	            while (SDL_PollEvent(&event)) {
-	                    if (event.type == SDL_EVENT_QUIT) {
-	                            quit = true;
-	                            break;
-	                    }
+while (!quit) {
+        while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_EVENT_QUIT) {
+                        quit = true;
+                        break;
+                }
 
-	                    if (event.type == SDL_EVENT_KEY_DOWN) {
-	                            SDL_Keycode const key = event.key.key;
-	                            switch (key) {
-	                            case SDLK_ESCAPE:
-	                                    quit = true;
-	                                    break;
-	                            case SDLK_Q:
-	                                    printf("Pressed Q!\n");
-	                                    break;
-	                            default:
-	                                    break;
-	                            }
-	                    }
-	            }
-	    }
-          </code>
-        </pre>
+                if (event.type == SDL_EVENT_KEY_DOWN) {
+                        SDL_Keycode const key = event.key.key;
+                        switch (key) {
+                        case SDLK_ESCAPE:
+                                quit = true;
+                                break;
+                        case SDLK_Q:
+                                printf("Pressed Q!\n");
+                                break;
+                        default:
+                                break;
+                        }
+                }
+        }
+}</code></pre>
         <p>Keys are now identified by <i>SDLK_Q, SDLK_W, SDLK_E</i>, etc. That is to say, keys are not in lower but uppercase after <i>SDLK_</i>.</p>
         <p>Another thing that changed is the way to get the key associated with the event. Now I just need to access <i>event.key.key</i> instead of <i>event.key.keysym.sym</i>.</p>
         <p>Finally (for the basics), <i>SDL_KEYDOWN</i> was renamed to <i>SDL_EVENT_KEY_DOWN</i>.</p>
@@ -119,22 +100,14 @@
         <p>It's also quite useful to tell SDL to synchronise my window to my monitor's refresh rate. This is to say that if I finish processing a frame earlier than expected (generally 1/60th of a second), then SDL_RenderPresent will wait the right amount of time before displaying the next frame. This avoids screen tearing, which happens when new frames are displayed before the monitor finishes refreshing the previous frame.</p>
         <p>In SDL2 I used to pass the flag <i>SDL_RENDERER_PRESENTVSYNC</i> to <i>SDL_CreateRenderer</i>, but as of SDL3, SDL_CreateRenderer only accepts two arguments: the window and the name of the rendering driver to initialise (or NULL if I want SDL to choose it for me).</p>
         <p>To tell SDL3 to use VSYNC I just need to put this line after creating my renderer:</p>
-          <pre>
-            <code>
-              SDL_SetRenderVSync(renderer, 1);
-            </code>
-          </pre>
+          <pre><code>SDL_SetRenderVSync(renderer, 1);</code></pre>
           <p>That's it.</p>
       </div>
       <h4 id="shutdown">Shutdown SDL</h4>
       <div class="articles">
         <p>Don't forget to shutdown SDL once the application finishes! Although any decent OS will do the cleaning for me... It's good practice, I guess.</p>
         <p>Nothing changed in this regard compared to SDL2.</p>
-        <pre>
-          <code>
-            SDL_Quit();
-          </code>
-        </pre>
+        <pre><code>SDL_Quit();</code></pre>
         <p>Easy peasy.</p>
       </div>
     </div>
