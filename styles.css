@@ -2,7 +2,7 @@ body {
     background-color: #000000;
     color: #00FF00;
     font-family: monospace, "Courier New", Courier;
-    margin: 0;
+    margin: 0 auto;
     padding: 20px;
     font-size: 14px;
 }
@@ -15,7 +15,6 @@ body {
     .content {
         max-width: 100%;
         padding: 10px;
-        margin: 0 auto;
     }
 
     pre, code {
