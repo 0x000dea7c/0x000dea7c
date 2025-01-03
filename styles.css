@@ -7,6 +7,22 @@ body {
     font-size: 14px;
 }
 
+@media screen and (max-width: 600px) {
+    body {
+        padding: 10px; /* Reduce padding for phones */
+    }
+
+    .content {
+        max-width: 100%; /* Ensure content spans full width on mobile */
+        padding: 10px; /* Adjust padding for mobile */
+    }
+
+    /* Adjust font size for better readability on mobile */
+    pre, code {
+        font-size: 12px; /* Make code font size larger for mobile */
+    }
+}
+
 .header {
     background-image: url('test6.png');
     background-size: contain;
