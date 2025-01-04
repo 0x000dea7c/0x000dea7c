@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Some Useful gdbinit Options For  Debugging C and C++ code</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="header"></div>
+    <div class="content">
+      <h2>Some Useful gdbinit Options For  Debugging C and C++ code</h2>
+      <h4>Intro</h4>
+      <div class="articles">
+        <p><i>gdbinit</i> is simply a configuration file that <i>gdb</i> uses when the program is initialised.</p>
+        <p>It's not created by default; I need to do it explicitly.</p>
+        <p>Generally, I'd put it in my home directory if I want to do a quick test. Or even better, in <i>~/.config/gdb/gdbinit</i>. This is the recommended way. Stop polluting my home directory please, thanks.</p>
+        <p>However, it can be a good idea to place this file under my project's directory. Why?</p>
+        <ol>
+          <li>Other people can use it. (I'm always all alone, so that isn't very relevant)</li>
+          <li>I can set different configuration options for <i>gdb</i> depending on the project that I'm working on.</li>
+        </ol>
+      </div>
+      <h4>Options</h4>
+      <div class="articles">
+        <u>Allowing gdb to Read The .gdbinit File From My Project's Directory</u>
+        <p>By default, <i>gdb</i> doesn't read the <i>.gdbinit</i> file from my project's directory. Security reasons. To allow it, I simply need to add this option to my <i>~/.config/gdb/gdbinit</i>:</p>
+        <pre><code>add-auto-load-safe-path /home/cut/Source/TempProject/.gdbinit</code></pre>
+        <u>Disabling Auto-Downloading Debuginfo</u>
+        <p>In the last versions of <I>gdb</I> that I've been using, every time I start debugging a program it prompts me to enable debuginfod for this session. I almost never want to do that, so I always press n. To save keystrokes, I can add this simple command to my <i>.gdbinit</i> so that it doesn't prompt me ever again.</p>
+        <pre><code>set debuginfod enabled off</code></pre>
+        <p>I believe I should have this option enabled if I'm interested in jumping into source code of glibc (or something like that) since this option allows me to do that even when I don't have the source code available.</p>
+        <u>Improving C++ debugging experience</u>
+        <p>Debugging C++ code is a pain in <i>gdb</i>.</p>
+        <p>Yes, take a look.</p>
+        <p>I've this simple code:</p>
+        <pre><code>using namespace std::string_literals;
+
+static void dumb(std::string const& arg)
+{
+    std::stringstream ss (arg);
+    int n0, n1;
+    ss >> n0 >> n1;
+
+    std::cout &lt;&lt; (n0 + n1) &lt;&lt; '\n';
+}
+
+int main() {
+    dumb("123 456"s);
+    return 0;
+}
+        </code></pre>
+        <p>Suppose I'm at the first line of the <i>main</i> function, and I want to step into <i>dumb</i>. Ok, just press s, right?</p>
+        <pre><code>
+17    dumb("123 456"s); &lt;--- I'm here
+(gdb) s
+std::literals::string_literals::operator"" s[abi:cxx11](char const*, unsigned long) (__str=0x555555556004 "123 456", __len=7) at /usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/14.2.1/../../../../include/c++/14.2.1/bits/basic_string.h:4694
+4694	    { return basic_string<char>{__str, __len}; }
+std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string (this=0x7fffffffe4f8, __s=0x555555556004 "123 456", __n=7, __a=...) at /usr/src/debug/gcc/gcc-build/x86_64-pc-linux-gnu/libstdc++-v3/include/bits/basic_string.h:624
+warning: 624	/usr/src/debug/gcc/gcc-build/x86_64-pc-linux-gnu/libstdc++-v3/include/bits/basic_string.h: No such file or directory
+        </code></pre>
+        <p>Yeah.</p>
+        <p>Bullshit.</p>
+        <p>So I can't step into it because <i>gdb</i> jumps into STL code.</p>
+        <p>If I keep entering <i>s</i>, I keep going deep into the undecipherable STL code. If I enter <i>n</i>, then <i>gdb</i> will skip my function.</p>
+        <p><u>First workaround</u>: put a breakpoint on the <i>dumb</i> function.</p>
+        <p>But, how come the step into functionality doesn't work in 2025? Especially for language like C++ that was invented more than 40 years ago...</p>
+        <p><u>Second workaround</u>: enter <i>s</i> and right after it, when I see STL code, enter <i>fin</i>. Then, enter <i>s</i> again. This will skip STL code and take me back to my function. However, it's annoying to do every time. Also, I don't know if this trick always works.</p>
+        <p><u>Third workaround</u>: modify my <i>.gdbinit</i>.</p>
+        <p>Essentially, I need to tell <i>gdb</i>: please, ignore all STL headers, thanks.</p>
+        <p>There's a handy command that I can use: <i>skip</i>.</p>
+        <pre><code>skip -gfi /usr/include/c++/14.2.1/bits/*.h</code></pre>
+        <p>However, there's a clear drawback: the path is hardcoded. I might need to change this. It's not portable.</p>
+        <p>The documentation for this command can be found <a href="https://sourceware.org/gdb/current/onlinedocs/gdb.html/Skipping-Over-Functions-and-Files.html">here</a>.</p>
+      </div>
+      <h4>Visually Pleasing .gdbinit</h4>
+      <div class="articles">
+        <p>There's an impressive project on GitHub called <i>GDB dashboard</i> that aims to improve my debugging experience by showing as much information as it can while I'm debugging my program.</p>
+        <p>I can find the link <a href="https://github.com/cyrus-and/gdb-dashboard/tree/master">here</a></p>
+        <p>It's cool, but there's a lot of Python code involved.</p>
+        <p>Last time I tried that configuration file I had some problems, for example, <i>gdb</i> was running way slower in some scenarios, and C++ support wasn't the best.</p>
+        <p>I also feel overwhelmed with that amount of information.</p>
+      </div>
+      <h4>Extras</h4>
+      <div class="articles">
+        <p>Sometimes outputting variables can be ugly, especially if they contain lots of elements:</p>
+        <p>For example:</p>
+        <pre><code>(gdb) i locals
+test = std::vector of length 9, capacity 9 = {1, 1, 1, 1, 1, 2, 3, 4, 5}
+unique = std::set with 5 elements = {[0] = 1, [1] = 2, [2] = 3, [3] = 4, [4] = 5}
+blah = std::map with 6 elements = {["Dreamcast"] = 5, ["Iwakura"] = 2, ["Lain"] = 1, ["PSX"] = 4, ["Water"] = 6, ["Wired"] = 3}</code></pre>
+        <p>It can look a bit better:</p>
+        <pre><code>(gdb) i locals
+test = std::vector of length 9, capacity 9 = {1, 1, 1, 1, 1, 2, 3, 4, 5}
+unique = std::set with 5 elements = {
+  [0] = 1,
+  [1] = 2,
+  [2] = 3,
+  [3] = 4,
+  [4] = 5
+}
+blah = std::map with 6 elements = {
+  ["Dreamcast"] = 5,
+  ["Iwakura"] = 2,
+  ["Lain"] = 1,
+  ["PSX"] = 4,
+  ["Water"] = 6,
+  ["Wired"] = 3
+}</code></pre>
+        <p>With these commands:</p>
+        <pre><code>set print pretty on
+set print object on
+set print static-members on
+set print vtbl on
+set print demangle on
+set demangle-style gnu-v3
+set print sevenbit-strings off</code></pre>
+        <p>Some are only relevant for C++.</p>
+      </div>
+    </div>
+    <footer>
+      <a href="index.html"><img src="back.gif" alt="home" width="150" height="150"></a>
+    </footer>
+  </body>
+</html>
