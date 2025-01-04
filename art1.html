@@ -16,7 +16,7 @@
           <li><a href="#basics">Basics (simplified)</a></li>
           <li><a href="#framebuffer">Creating a Framebuffer</a></li>
           <li><a href="#framebuffer_colour">Filling a Framebuffer With a Colour</a></li>
-          <li><a href="#framebuffer_sdl">Using my Framebuffer with SDL3</a></li>
+          <li><a href="#framebuffer_sdl">Using my Framebuffer With SDL3</a></li>
           <li><a href="#rendering">Rendering</a></li>
           <li><a href="#screenshots">Screenshots</a></li>
         </ul>
@@ -41,7 +41,7 @@
         <p>It's a technique where I reserve enough memory for a framebuffer such that I can store two frames worth of data.</p>
         <p>Say I name the first half of the framebuffer as A, the other half as B.</p>
         <p>The idea is to store the data of the current frame in A and display that whilst I'm computing the data for the next frame on B.</p>
-        <p>After I finish computing everything I need for B, then I swap these two buffers and tell SDL3 (or whatever) to render A.</p>
+        <p>After I finish computing everything I need for B, I then swap these two buffers and tell SDL3 (or whatever) to render A.</p>
         <p>However, using double buffering is not enough to avoid screen tearing.</p>
         <u>What is VSync?</u>
         <p>It's a technique that aims to synchronise my application's frame rate (FPS) and my monitor's refresh rate (Hz) such that FPS &lt;= Hz. By doing so, VSync prevents screen tearing, where two frames are being simultaneously rendered due to a mismatch of my application's frame rate and my monitor's refresh rate.</p>
@@ -107,7 +107,7 @@ for (uint32_t i = 0; i &lt; fb.pixel_count; ++i) {
         <p>For more performance I need to know ASM, SIMD and intrinsics.</p>
       </div>
       
-      <h4 id="framebuffer_sdl">Using my Framebuffer with SDL3</h4>
+      <h4 id="framebuffer_sdl">Using my Framebuffer With SDL3</h4>
       <div class="articles">
         <p>When using my own framebuffer, it's recommended to create an SDL texture. This texture will represent my framebuffer.</p>
         <p>It's also recommended to pass the property <i>SDL_TEXTUREACCESS_STREAMING</i> when creating the texture, which means the texture will be updated regularly.</p>
