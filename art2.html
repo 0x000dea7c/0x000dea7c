@@ -38,16 +38,17 @@
 
 static void dumb(std::string const& arg)
 {
-    std::stringstream ss (arg);
-    int n0, n1;
-    ss >> n0 >> n1;
+        std::stringstream ss (arg);
+        int n0, n1;
+        ss >> n0 >> n1;
 
-    std::cout &lt;&lt; (n0 + n1) &lt;&lt; '\n';
+        std::cout &lt;&lt; (n0 + n1) &lt;&lt; '\n';
 }
 
-int main() {
-    dumb("123 456"s);
-    return 0;
+int main()
+{
+        dumb("123 456"s);
+        return 0;
 }
         </code></pre>
         <p>Suppose I'm at the first line of the <i>main</i> function, and I want to step into <i>dumb</i>. Ok, just press s, right?</p>
