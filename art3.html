@@ -18,6 +18,7 @@
           <li><a href="#wdin">What do I need?</a></li>
           <li><a href="#code">Code Dive</a></li>
           <li><a href="#demo">Demo</a></li>
+          <li><a href="#shared">How To Compile a Shared Library</a></li>
           <li><a href="#improve">How to Improve My Hot Code Reloading System</a></li>
         </ul>
       </div>
@@ -322,7 +323,7 @@ lib->render = *(render_func *) dlsym(lib->handle, "game_render");</code></pre>
 <pre><code>case SDLK_R:
         hot_reload_update(&game_logic_lib);</code></pre>
       </div>
-      <h4>How to compile a shared library</h4>
+      <h4 id="shared">How To Compile a Shared Library</h4>
       <div class="articles">
         <p>It's nothing special. Just compile the hot module file with flags -shared and -fPIC. I think I want to use -fvisibility=hidden if I want to be a good citizen.</p>
         <p>I'm leaving my own Makefile here for references:</p>
