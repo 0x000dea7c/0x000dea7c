@@ -10,17 +10,28 @@
     <div class="header"></div>
     <div class="content">
       <h2>Basic Hot Code Reload in C and C++</h2>
-      <h4>Intro</h4> <!-- FIXME: add index -->
+      <h4>Sections</h4>
+      <div class="articles">
+        <ul>
+          <li><a href="#intro">Intro</a></li>
+          <li><a href="#how">How?</a></li>
+          <li><a href="#wdin">What do I need?</a></li>
+          <li><a href="#code">Code Dive</a></li>
+          <li><a href="#demo">Demo</a></li>
+          <li><a href="#improve">How to Improve My Hot Code Reloading System</a></li>
+        </ul>
+      </div>
+      <h4 id="intro">Intro</h4>
       <div class="articles">
         <p>This is going to be a reasonably sized post.</p>
         <p>Nothing in this article is particularly difficult, but I will be providing as much code as possible.</p>
         <p>Hot code reload means updating the code of the application while it's running and seeing changes without having to restart it.</p>
         <p>It's particularly useful for graphics and game development.</p>
-        <p>Just think about how useful is to modify shaders and seeing results on the fly.</p>
+        <p>Just think about how useful it is to modify shaders and seeing results on the fly.</p>
         <p>This is exactly what I get when I'm messing around in <a href="https://www.shadertoy.com/">shadertoy</a>.</p>
         <p>The good news is that I can do that with things that aren't only shaders.</p>
       </div>
-      <h4>How?</h4>
+      <h4 id="how">How?</h4>
       <div class="articles">
         <p>The "trick" is to use shared libraries. This isn't really a trick, however. This technology has been around since the 80's, probably.</p>
         <p>Shared libraries (.so files on GNU/Linux) are files that contain executable code that is designed to be used across multiple programs. They don't have a <i>main</i> function.</p>
@@ -31,12 +42,12 @@
         <p>This is easier said than done.</p>
         <p>Apparently, it's tricky to determine what goes into which module. I can't elaborate on this because I'm still a newbie, but be aware of that. Perhaps that isn't a problem at all!</p>
       </div>
-      <h4>What do I need?</h4>
+      <h4 id="wdin">What do I need?</h4>
       <div class="articles">
         <p>On GNU/Linux I need to use the functions <i>dlopen</i>, <i>dlsym</i> and <i>dlclose</i> which are contained in the <i>dlfcn.h</i> header.</p>
         <p>And that's pretty much it for basic hot code reloading.</p>
       </div>
-      <h4>Code Dive</h4>
+      <h4 id="code">Code Dive</h4>
       <div class="articles">
         <p>Let's assume I have this working code at the moment. It's just a regular main loop using SDL3:</p>
 <pre><code>void
@@ -280,14 +291,14 @@ hot_reload_quit(hot_reload_lib_info *lib)
 	}
 }</code></pre>
         <p>Code is pretty much self explanatory, except the unions part.</p>
-        <p>The reason for unions has to do with dlsym returning a void* type.</p>
+        <p>The reason for using unions has to do with dlsym returning a void* type.</p>
         <p>If I cast the return value to my function pointer's type immediately, then it would compile, but I'd get an 8-byte alignment problem at runtime.</p>
         <p>In x86-64 systems, function pointers have to be 8-byte aligned, that is to say, their addresses need to be divisible by 8.</p>
         <p>void* isn't guaranteed to point to an address divisible by 8, it can point anywhere.</p>
         <p>When I'm casting and dereferencing (to make it be a function pointer) all in one line, like this:</p>
         <pre><code>lib->update = *(update_func *) dlsym(lib->handle, "game_update");
 lib->render = *(render_func *) dlsym(lib->handle, "game_render");</code></pre>
-        <p>then I'm not enforcing this alignment requirement.</p>
+        <p>then I'm not enforcing this alignment requirement, plus I'm trying to read from the wrong location.</p>
         <p>Sanitisers catch this problem and the program blows up.</p>
         <p>Instead, I can do this first:</p>
         <pre><code>void *update_sym = dlsym(lib->handle, "game_update");</code></pre>
@@ -345,21 +356,15 @@ obj/%.o: code/%.c
 	$(CC) $(CC_FLAGS) -c $&lt; -o $@ $(LD_FLAGS)
 
 run:
-	LD_LIBRARY_PATH=LD_LIBRARY_PATH:/usr/local/lib:. ./xcaliber</code></pre>
+	LD_LIBRARY_PATH=$${LD_LIBRARY_PATH}:/usr/local/lib:. ./xcaliber</code></pre>
       </div>
-      <h4>Demo</h4>
+      <h4 id="demo">Demo</h4>
       <div class="articles">
-        <iframe 
-          width="560" 
-          height="315" 
-          src="https://youtu.be/ghl1N_Ideas"
-          title="Hot Code Reload Demo" 
-          frameborder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-          allowfullscreen>
-        </iframe>
+        <div class="video-container">
+          <iframe width="1280" height="720" src="https://www.youtube.com/embed/ghl1N_Ideas" title="GNU/Linux - C - Hot Reload Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
       </div>
-      <h4>How to Improve My Hot Code Reloading System</h4>
+      <h4 id="improve">How to Improve My Hot Code Reloading System</h4>
       <div class="articles">
         <p>Use the inotify API from GNU/Linux to add a watcher on the hot module (shared library).</p>
         <p>Then, listen for the right events, that is to say, for modifications. When I detect a modification, call the reload function.</p>
