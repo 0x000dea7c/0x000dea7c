@@ -128,20 +128,20 @@ if (!ctx.fb.pixels) {
 	      "Couldn't get a chunk of memory for the framebuffer from the arena");
 }
 
+/* renderer */
+if (!SDL_CreateWindowAndRenderer("XCaliber", 800,
+			         600, 0, &window,
+				 &ctx.renderer)) {
+        panic("SDL_CreateWindowAndRenderer", SDL_GetError());
+}
+
 /* texture */
 ctx.texture = SDL_CreateTexture(ctx.renderer, SDL_PIXELFORMAT_RGBA8888,
 				SDL_TEXTUREACCESS_STREAMING,
 				800, 600);
 if (!ctx.texture) {
 	panic("SDL_CreateTexture", SDL_GetError());
-}
-
-/* renderer */
-if (!SDL_CreateWindowAndRenderer("XCaliber", 800,
-			         600, 0, &window,
-				 &ctx.renderer)) {
-        panic("SDL_CreateWindowAndRenderer", SDL_GetError());
-} </code></pre>
+}</code></pre>
         <p>Neat.</p>
         <p>Now it's time to create the new module. I'm going to go ahead and create the files <i>xcaliber_game_logic.h/.c</i>. X-Caliber is the name of the game I'm doing right now. Ignore that.</p>
         <p>Inside the header file (interface) I will move the update and render functions I showed before (I added the delta time argument for the <i>update</i> function because it will be needed if I'm making a serious program):</p>
@@ -365,7 +365,7 @@ run:
           <iframe width="1280" height="720" src="https://www.youtube.com/embed/ghl1N_Ideas" title="GNU/Linux - C - Hot Reload Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
         </div>
       </div>
-      <h4 id="improve">How to Improve My Hot Code Reloading System</h4>
+      <h4 id="improve">How to Improve My Hot Code Reloading System (GNU/Linux specific)</h4>
       <div class="articles">
         <p>Use the inotify API from GNU/Linux to add a watcher on the hot module (shared library).</p>
         <p>Then, listen for the right events, that is to say, for modifications. When I detect a modification, call the reload function.</p>
