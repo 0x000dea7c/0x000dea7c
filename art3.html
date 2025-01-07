@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Hot Code Reload in C and C++</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="header"></div>
+    <div class="content">
+      <h2>Basic Hot Code Reload in C and C++</h2>
+      <h4>Intro</h4> <!-- FIXME: add index -->
+      <div class="articles">
+        <p>This is going to be a reasonably sized post.</p>
+        <p>Nothing in this article is particularly difficult, but I will be providing as much code as possible.</p>
+        <p>Hot code reload means updating the code of the application while it's running and seeing changes without having to restart it.</p>
+        <p>It's particularly useful for graphics and game development.</p>
+        <p>Just think about how useful is to modify shaders and seeing results on the fly.</p>
+        <p>This is exactly what I get when I'm messing around in <a href="https://www.shadertoy.com/">shadertoy</a>.</p>
+        <p>The good news is that I can do that with things that aren't only shaders.</p>
+      </div>
+      <h4>How?</h4>
+      <div class="articles">
+        <p>The "trick" is to use shared libraries. This isn't really a trick, however. This technology has been around since the 80's, probably.</p>
+        <p>Shared libraries (.so files on GNU/Linux) are files that contain executable code that is designed to be used across multiple programs. They don't have a <i>main</i> function.</p>
+        <p>Because of that, shared libraries are compiled differently compared to a regular program.</p>
+        <p>I can statically link these shared libraries to my application or I can load them at runtime. The latter is what I'm going to do in order to support hot reloading.</p>
+        <p>So, the idea is to divide the application in two modules: a "cold" one and a "hot" one.</p>
+        <p>The "hot" one is the one that I will be loading at runtime.</p>
+        <p>This is easier said than done.</p>
+        <p>Apparently, it's tricky to determine what goes into which module. I can't elaborate on this because I'm still a newbie, but be aware of that. Perhaps that isn't a problem at all!</p>
+      </div>
+      <h4>What do I need?</h4>
+      <div class="articles">
+        <p>On GNU/Linux I need to use the functions <i>dlopen</i>, <i>dlsym</i> and <i>dlclose</i> which are contained in the <i>dlfcn.h</i> header.</p>
+        <p>And that's pretty much it for basic hot code reloading.</p>
+      </div>
+      <h4>Code Dive</h4>
+      <div class="articles">
+        <p>Let's assume I have this working code at the moment. It's just a regular main loop using SDL3:</p>
+<pre><code>void
+run(void)
+{
+	SDL_Event event;
+        bool running = true;
+    
+	while (running) {
+		while (SDL_PollEvent(&event)) {
+			if (event.type == SDL_EVENT_QUIT) {
+				running = false;
+				break;
+			}
+			if (event.type == SDL_EVENT_KEY_DOWN) {
+				SDL_Keycode const key = event.key.key;
+				switch (key) {
+				case SDLK_ESCAPE:
+					running = false;
+					break;
+				case SDLK_Q:
+					printf("Pressed Q!\n");
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
+		update();
+		render();
+	}
+}</code></pre>
+        <p>With the code as it is, if I want to make some modifications within the <i>update</i> or <i>render</i> functions, I have no other choice but to make the changes, compile the program and restart the application.</p>
+        <p>In order to avoid restarting the application after making these changes, I need to separate these two functions into a separate module.</p>
+        <p>Ok, let's do that. My current update and render functions look as follows:</p>
+<pre><code>static void
+update(void)
+{
+	uint32_t const red = 0xFF0000FF;
+	for (uint32_t i = 0; i &lt; fb.pixel_count; ++i) {
+		fb.pixels[i] = red;
+	}
+	SDL_UpdateTexture(texture, NULL, fb.pixels, (int)fb.pitch);
+}
+
+static void
+render(void)
+{
+	SDL_RenderClear(renderer);
+	SDL_RenderTexture(renderer, texture, NULL, NULL);
+	SDL_RenderPresent(renderer);
+}</code></pre>
+        <p>The first problem I have is that <i>fb</i>, <i>texture</i> and <i>renderer</i> are globals:</p>
+        <pre><code>static framebuffer fb;
+static SDL_Renderer *renderer = NULL;
+static SDL_Texture *texture = NULL;</code></pre>
+        <p>Since <i>update</i> and <i>render</i> need these variables, I need to pass them to the new module somehow.</p>
+        <p>A simple idea is to create a struct and hold that information there. I'll call that the game context:</p>
+<pre><code>typedef struct {
+	framebuffer fb;
+	SDL_Texture *texture;
+	SDL_Renderer *renderer;
+} game_ctx;</code></pre>
+        <p>Ok, now I only have this global variable:</p>
+        <pre><code>static game_ctx ctx;</code></pre>
+        <p>Time to store the framebuffer, texture and renderer information inside this global:</p>
+<pre><code>/* framebuffer */
+ctx.fb.width = (uint32_t)win_dims.width;
+ctx.fb.height = (uint32_t)win_dims.height;
+ctx.fb.pitch = ctx.fb.width * sizeof(uint32_t);
+ctx.fb.pixel_count = ctx.fb.width * ctx.fb.height;
+ctx.fb.byte_size = ctx.fb.pixel_count * sizeof(uint32_t);
+ctx.fb.pixels = linear_arena_alloc(&arena, ctx.fb.byte_size); /* dw about this, it's irrelevant */
+if (!ctx.fb.pixels) {
+	panic("main linear arena alloc",
+	      "Couldn't get a chunk of memory for the framebuffer from the arena");
+}
+
+/* texture */
+ctx.texture = SDL_CreateTexture(ctx.renderer, SDL_PIXELFORMAT_RGBA8888,
+				SDL_TEXTUREACCESS_STREAMING,
+				800, 600);
+if (!ctx.texture) {
+	panic("SDL_CreateTexture", SDL_GetError());
+}
+
+/* renderer */
+if (!SDL_CreateWindowAndRenderer("XCaliber", 800,
+			         600, 0, &window,
+				 &ctx.renderer)) {
+        panic("SDL_CreateWindowAndRenderer", SDL_GetError());
+} </code></pre>
+        <p>Neat.</p>
+        <p>Now it's time to create the new module. I'm going to go ahead and create the files <i>xcaliber_game_logic.h/.c</i>. X-Caliber is the name of the game I'm doing right now. Ignore that.</p>
+        <p>Inside the header file (interface) I will move the update and render functions I showed before (I added the delta time argument for the <i>update</i> function because it will be needed if I'm making a serious program):</p>
+<pre><code>#ifndef XCALIBER_GAME_LOGIC_H
+#define XCALIBER_GAME_LOGIC_H
+
+/* NOTE: this file will be compiled into a shared library and will be hot
+   reloaded! Careful with what I put here, especially state related stuff. */
+
+/* Symbols are public by default on GNU/Linux systems if I don't specify
+   anything at compile time, but it's a good practice to compile shared
+   libraries with hidden visiblity and then being explicit about which
+   functions should be visible. */
+
+#include "xcaliber.h"
+
+#define GAME_API __attribute__((visibility("default")))
+
+GAME_API void game_update(game_ctx *ctx, float dt);
+GAME_API void game_render(game_ctx *ctx);
+
+#endif
+</code></pre>
+        <p>The implementation of this file looks like this:</p>
+<pre><code>#include "xcaliber_game_logic.h"
+#include "xcaliber.h"
+#include &lt;SDL3/SDL.h&gt;
+
+GAME_API void game_update(game_ctx *ctx, __attribute__((unused)) float dt)
+{
+	uint32_t const colour = 0x000000FF;
+	for (uint32_t i = 0; i < ctx-&gt;fb.pixel_count; ++i) {
+		ctx->fb.pixels[i] = colour;
+	}
+	SDL_UpdateTexture(ctx->texture, NULL, ctx-&gt;fb.pixels, (int)ctx-&gt;fb.pitch);
+}
+
+GAME_API void game_render(game_ctx *ctx)
+{
+	SDL_RenderClear(ctx-&gt;renderer);
+	SDL_RenderTexture(ctx-&gt;renderer, ctx-&gt;texture, NULL, NULL);
+	SDL_RenderPresent(ctx-&gt;renderer);
+}</code></pre>
+        <p>Super.</p>
+        <p>What I need now is to somehow be able to call these two functions from the main loop.</p>
+        <p>Since they will be stored in a different module and thus in a shared library that I will load at runtime, a regular function call won't do.</p>
+        <p>It's time to use <i>dlopen</i>, <i>dlsym</i> and <i>dlclose</i>.</p>
+        <p>I'm going to store this functionality in xcaliber_hot_reload.h/.c:</p>
+        <pre><code>#ifndef XCALIBER_HOT_RELOAD_H
+#define XCALIBER_HOT_RELOAD_H
+
+#include &lt;stdbool.h&gt;
+#include "xcaliber.h"
+
+/* FIXME: this comment sucks */
+/* function pointers that act as an interface between the main program and the shared lib */
+typedef void (*update_func)(game_ctx *ctx, float dt);
+typedef void (*render_func)(game_ctx *ctx);
+
+typedef struct {
+	void *handle; /* handle to the dynamic lib */
+	char const *path; /* path to the lib */
+	update_func update;
+	render_func render;
+} hot_reload_lib_info;
+
+bool hot_reload_init(hot_reload_lib_info *lib, char const *path);
+
+/* returns false if something went wrong or true if everything went fine */
+bool hot_reload_update(hot_reload_lib_info *lib);
+
+/* release resources */
+void hot_reload_quit(hot_reload_lib_info *lib);
+
+#endif</code></pre>
+        <p>Implementation:</p>
+<pre><code>#include "xcaliber_hot_reload.h"
+#include &lt;assert.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;dlfcn.h&gt;
+#include &lt;unistd.h&gt;
+
+union {
+	void *obj_ptr;
+	update_func func_ptr;
+} upd_tmp;
+
+union {
+	void *obj_ptr;
+	render_func func_ptr;
+} rend_tmp;
+
+bool
+hot_reload_init(hot_reload_lib_info *lib, char const *path)
+{
+	assert(strlen(path) != 0);
+
+	lib->path = path;
+	lib->handle = NULL;
+	lib->render = NULL;
+	lib->update = NULL;
+
+	/* try to load the library */
+	return hot_reload_update(lib);
+}
+
+bool
+hot_reload_update(hot_reload_lib_info *lib)
+{
+	if (lib->handle) {
+		/* if the lib is opened, close it first */
+		dlclose(lib->handle);
+		lib->handle = NULL;
+		lib->render = NULL;
+		lib->update = NULL;
+	}
+
+	/* RTLD_NOW: find all symbols immediately. */
+	lib->handle = dlopen(lib->path, RTLD_NOW);
+	if (!lib->handle) {
+		(void)fprintf(stderr, "couldn't open lib %s: %s\n", lib->path, dlerror());
+		return false;
+	}
+
+	/* look for symbols inside this library */
+	upd_tmp.obj_ptr = dlsym(lib->handle, "game_update");
+	rend_tmp.obj_ptr = dlsym(lib->handle, "game_render");
+
+	lib->update = upd_tmp.func_ptr;
+	lib->render = rend_tmp.func_ptr;
+
+        /* NOTE: THIS ISN'T THE BEST WAY TO CHECK FOR ERRORS, THE SYMBOL COULD BE NULL AND THAT'D BE VALID! */
+        /* read the man pages! */
+	if (!lib->update || !lib->render) {
+		(void)fprintf(stderr, "couldn't find symbols for lib %s: %s\n", lib->path, dlerror());
+		return false;
+	}
+
+	return true;
+}
+
+void
+hot_reload_quit(hot_reload_lib_info *lib)
+{
+	if (lib->handle) {
+		dlclose(lib->handle);
+	}
+}</code></pre>
+        <p>Code is pretty much self explanatory, except the unions part.</p>
+        <p>The reason for unions has to do with dlsym returning a void* type.</p>
+        <p>If I cast the return value to my function pointer's type immediately, then it would compile, but I'd get an 8-byte alignment problem at runtime.</p>
+        <p>In x86-64 systems, function pointers have to be 8-byte aligned, that is to say, their addresses need to be divisible by 8.</p>
+        <p>void* isn't guaranteed to point to an address divisible by 8, it can point anywhere.</p>
+        <p>When I'm casting and dereferencing (to make it be a function pointer) all in one line, like this:</p>
+        <pre><code>lib->update = *(update_func *) dlsym(lib->handle, "game_update");
+lib->render = *(render_func *) dlsym(lib->handle, "game_render");</code></pre>
+        <p>then I'm not enforcing this alignment requirement.</p>
+        <p>Sanitisers catch this problem and the program blows up.</p>
+        <p>Instead, I can do this first:</p>
+        <pre><code>void *update_sym = dlsym(lib->handle, "game_update");</code></pre>
+        <p>Then, after getting the symbol, I can cast that to my function pointer:</p>
+        <pre><code>lib->update = (update_func) update_sym;</code></pre>
+        <p>Now the compiler is able to align the memory address properly.</p>
+        <p>Also, just for the record, this isn't allowed, hehe:</p>
+        <pre><code>code/xcaliber_hot_reload.c:129:24: error: ISO C forbids conversion of object pointer to function pointer type [-Werror=pedantic]
+  129 |         lib->update = *(update_func) dlsym(lib->handle, "game_update");</code></pre>
+        <p>Having said that, let's talk about the union.</p>
+        <p>The union ensures that I'm going to have a memory location where either the function pointer or the void* will be stored.</p>
+        <p>This allows the compiler to align memory addresses correctly for me. No need to keep different variables around.</p>
+        <p>Finally, the only thing I need to do is to perform this hot reload on demand.</p>
+        <p>First, create a global variable that will hold information about the shared library. This has to be done inside the file that contains the main loop:</p>
+        <pre><code>static hot_reload_lib_info game_logic_lib;</code></pre>
+        <p>Then, initialise it: </p>
+<pre><code>if (!hot_reload_init(&game_logic_lib, "libgamelogic.so")) {
+	panic("hot_reload_init", "couldn't load game's logic shared library!");
+}</code></pre>
+        <p>Then, call the update function when I press the key: </p>
+<pre><code>case SDLK_R:
+        hot_reload_update(&game_logic_lib);</code></pre>
+      </div>
+      <h4>How to compile a shared library</h4>
+      <div class="articles">
+        <p>It's nothing special. Just compile the hot module file with flags -shared and -fPIC. I think I want to use -fvisibility=hidden if I want to be a good citizen.</p>
+        <p>I'm leaving my own Makefile here for references:</p>
+        <pre><code>
+CC               := gcc
+CC_FLAGS_WARN    := -Wall -Werror -Wextra -pedantic -Wformat -Wformat-security -Wconversion -Wshadow
+CC_FLAGS_DEBUG   := -O1 -ggdb3 -D_FORTIFY_SOURCE=2 -fsanitize=address,leak,undefined -fstack-clash-protection -fcf-protection=full
+CC_FLAGS_RELEASE := -O3 -g -ffast-math -funroll-loops -flto
+TARGET           := xcaliber
+SHARED_FLAGS     := -shared -fPIC -fvisibility=hidden
+GAME_LIB         := libgamelogic.so
+LD_FLAGS         := -lSDL3 -ldl
+
+$(shell mkdir -p obj)
+
+all: release
+
+release: CC_FLAGS := $(CC_FLAGS_WARN) $(CC_FLAGS_RELEASE)
+release: $(TARGET) $(GAME_LIB)
+
+debug: CC_FLAGS := $(CC_FLAGS_WARN) $(CC_FLAGS_DEBUG)
+debug: $(TARGET) $(GAME_LIB)
+
+$(TARGET): $(OBJECTS)
+	$(CC) $(CC_FLAGS) $(OBJECTS) -o $@ $(LD_FLAGS)
+
+$(GAME_LIB): code/xcaliber_game_logic.c
+	$(CC) $(CC_FLAGS) $(SHARED_FLAGS) $&lt; -o $@
+
+obj/%.o: code/%.c
+	$(CC) $(CC_FLAGS) -c $&lt; -o $@ $(LD_FLAGS)
+
+run:
+	LD_LIBRARY_PATH=LD_LIBRARY_PATH:/usr/local/lib:. ./xcaliber</code></pre>
+      </div>
+      <h4>Demo</h4>
+      <div class="articles">
+        <iframe 
+          width="560" 
+          height="315" 
+          src="https://youtu.be/ghl1N_Ideas"
+          title="Hot Code Reload Demo" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen>
+        </iframe>
+      </div>
+      <h4>How to Improve My Hot Code Reloading System</h4>
+      <div class="articles">
+        <p>Use the inotify API from GNU/Linux to add a watcher on the hot module (shared library).</p>
+        <p>Then, listen for the right events, that is to say, for modifications. When I detect a modification, call the reload function.</p>
+        <p>Make sure you add a sensible delay after you detect a modification in your hot module, otherwise you'd be trying to load a file that wasn't fully created yet!</p>
+        <p>Take a look at my <a href="https://github.com/0x000dea7c/dumb">dumb project</a></p>
+      </div>
+    </div>
+    <footer>
+      <a href="index.html"><img src="back.gif" alt="home" width="150" height="150"></a>
+    </footer>
+  </body>
+</html>
