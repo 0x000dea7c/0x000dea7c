@@ -256,6 +256,39 @@ a:hover {
     height: 100%;
 }
 
+.terminal-text {
+    font-family: monospace;
+    color: #7FE173;
+    margin-top: 20px;
+}
+
+.typewriter {
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid #7FE173;
+    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+    margin: 0;
+    padding: 5px 0;
+}
+
+.delay-1 {
+    animation-delay: 1s;
+}
+
+.delay-2 {
+    animation-delay: 2s;
+}
+
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: #7FE173 }
+}
+
 /* Animations */
 @keyframes blink {
     50% { opacity: 0; }
