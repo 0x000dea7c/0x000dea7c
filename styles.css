@@ -1,42 +1,14 @@
+/* Base styles */
 body {
-    background-color: #0a0a0a;  /* Slightly softer than pure black */
-    color: #7FE173;            /* A softer green, easier on the eyes */
+    background-color: #0a0a0a;
+    color: #7FE173;
     font-family: "Courier Prime", "Lucida Console", monospace;
     margin: 0;
     padding: 20px;
     font-size: 14px;
 }
 
-@media screen and (max-width: 600px) {
-    body {
-        padding: 10px;
-    }
-
-    .content {
-        max-width: 100%;
-        padding: 10px;
-    }
-
-    pre, code {
-        font-size: 12px;
-    }
-
-    .articles ul li {
-        padding-left: 25px;  /* Reduced space for smaller icon */
-        margin-left: 20px;   /* Reduced space for loading animation */
-    }
-
-    .articles ul li::before {
-        width: 20px;         /* Smaller icon */
-        height: 20px;
-    }
-
-    /* Also adjust the loading animation position for mobile */
-    .articles ul li a:hover::before {
-        left: -20px;        /* Slightly closer to the text */
-    }
-}
-
+/* Header styles */
 .header {
     height: 200px;
     display: flex;
@@ -44,33 +16,61 @@ body {
     justify-content: center;
     margin-bottom: 30px;
     margin-top: 15px;
-    max-width: 100%;
     overflow: hidden;
 }
 
 .header img {
     height: 200px;
+    max-height: 200px;
     width: auto;
     object-fit: contain;
-    max-width: 100%;
-    max-height: 200px;
 }
 
-.header img:hover {
-    opacity: 0.9;
-    transition: opacity 0.3s ease;
+/* Navigation and monitors */
+.navi-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 64px;
+    height: 64px;
+    z-index: 1000;
+    opacity: 0.8;
+    transition: opacity 0.3s;
 }
 
-.idx_footer {
-    background-image: url('test7.png');
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 30px;
+.navi-container svg {
+    width: 100%;
+    height: 100%;
+    max-width: 64px;
+    max-height: 64px;
+}
+
+.navi-container:hover {
+    opacity: 1;
+}
+
+/* Wave background */
+.wave-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.wave-background svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Content styles */
+.content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
 .content img {
@@ -80,27 +80,14 @@ body {
     justify-content: center;
 }
 
-.header h1 {
-    color: #FFFFFF;
-    text-shadow: 2px 2px 4px #000000;
-    text-align: center;
-}
-
-.content {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
 .welcome {
-    border: 1px solid #00FF00;
+    border: 1px solid #7FE173;
     padding: 20px;
     margin-bottom: 30px;
 }
 
 .articles {
     border: 1px solid #7FE173;
-    /* Add a subtle glow effect */
     box-shadow: 0 0 5px #7FE173;
     background-color: rgba(10, 10, 10, 0.8);
     padding: 20px;
@@ -108,79 +95,86 @@ body {
     margin: 0 auto;
 }
 
-a {
-    color: #7FE173;
-    transition: color 0.3s, text-shadow 0.3s;
-}
-
-a:hover {
-    color: #9FF193;
-    text-shadow: 0 0 5px #7FE173;
-    text-decoration: none;
-}
-
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-
+/* Give some space to breathe */
 li {
     margin: 10px 0;
     padding: 5px;
 }
 
-p {
-    text-align: justify;
-    hyphens: auto;
+/* List and link styles */
+.articles ul {
+    list-style-type: none;
+    padding: 0;
 }
 
-footer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 30px;
-}
-
-h4 {
-    color: #00DD00; /* A slightly darker green */
-    text-shadow: 1px 1px 2px #000000; /* Add a subtle shadow */
-    font-size: 1.3em; /* Slightly increase size */
-    margin: 20px 0 10px 0; /* Add some spacing */
-    padding-bottom: 5px;
-}
-
-.articles pre {
-    max-width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    background: #1a1a1a;
-    padding: 10px;
-    border: 1px solid #333;
-    border-radius: 4px;
-}
-
-.articles pre code {
-    white-space: pre; /* Keep original formatting */
-    display: block; /* Treat code as block for easier styling */
-    overflow-wrap: normal;
-}
-
-.video-container {
+.articles ul li {
     position: relative;
+    padding-left: 40px;
+    margin-left: 30px;
+    margin: 10px 0;
+}
+
+.articles ul li a {
+    position: relative;
+    display: inline-block;
+    color: #7FE173;
+    transition: color 0.3s, text-shadow 0.3s;
+    text-decoration: none;
+}
+
+.articles ul li a:hover {
+    color: #9FF193;
+    text-shadow: 0 0 5px #7FE173;
+}
+
+/* Loading animation for links */
+.articles ul li a::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: #7FE173;
+    transition: width 0.3s ease-in-out;
+    box-shadow: 0 0 5px #7FE173;
+}
+
+.articles ul li a:hover::after {
     width: 100%;
-    padding-bottom: 56.25%; /* 16:9 aspect ratio */
-    height: 0;
+}
+
+.articles ul li a:hover::before {
+    content: ">";
+    position: absolute;
+    left: -25px;
+    color: #7FE173;
+    animation: loadingDots 1s infinite;
+    width: 25px;
+    text-align: right;
     overflow: hidden;
 }
 
-.video-container iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+/* Headings */
+h2, h4 {
+    position: relative;
+    padding-left: 20px;
+    color: #7FE173;
 }
 
+h2::before, h4::before {
+    content: ">";
+    position: absolute;
+    left: 0;
+    color: #7FE173;
+}
+
+h2::after {
+    content: "_";
+    animation: blink 1s step-end infinite;
+}
+
+/* Scanlines effect */
 body::after {
     content: "";
     position: fixed;
@@ -200,23 +194,43 @@ body::after {
     opacity: 0.3;
 }
 
-/* Add a blinking cursor to headings */
-h2::after {
-    content: "_";
-    animation: blink 1s step-end infinite;
+/* Connection status */
+.connection-status {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: 12px;
+    color: #7FE173;
+    animation: blink 2s infinite;
 }
 
-@keyframes blink {
-    50% { opacity: 0; }
+/* Links */
+a {
+    color: #7FE173;
+    transition: color 0.3s, text-shadow 0.3s;
 }
 
+a:hover {
+    color: #9FF193;
+    text-shadow: 0 0 5px #7F3173;
+    text-decoration: none;
+}
+
+/* Code */
 .articles pre {
-    background: #0a0a0a;
-    border: 1px solid #7FE173;
-    box-shadow: inset 0 0 10px rgba(127, 225, 115, 0.2);
-    padding: 15px;
-    margin: 10px 0;
-    position: relative;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    background: #1a1a1a;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 4px;
+}
+
+.articles pre code {
+    white-space: pre; /* Keep original formatting */
+    display: block; /* Treat code as block for easier styling */
+    overflow-wrap: normal;
 }
 
 .articles pre::before {
@@ -225,86 +239,26 @@ h2::after {
     opacity: 0.7;
 }
 
-/* Navi container - fixed in bottom right corner */
-.navi-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 64px;
-    height: 64px;
-    z-index: 1000;
-    opacity: 0.8;
-    transition: opacity 0.3s;
-}
-
-.navi-container svg {
-    max-width: 64px;
-    max-height: 64px;
-}
-
-.navi-container:hover {
-    opacity: 1;
-}
-
-/* Adjust size for mobile devices */
-@media screen and (max-width: 600px) {
-    .navi-container {
-        width: 40px;    /* Smaller size */
-        height: 40px;
-        bottom: 10px;   /* Closer to the edge */
-        right: 10px;
-    }
-}
-
-/* Even smaller for very small screens */
-@media screen and (max-width: 400px) {
-    .navi-container {
-        width: 32px;    /* Smallest size */
-        height: 32px;
-        bottom: 8px;
-        right: 8px;
-    }
-}
-
-/* List items with computer icon */
-.articles ul li {
+/* Videos */
+.video-container {
     position: relative;
-    padding-left: 40px;  /* Space for the icon */
-    margin-left: 30px;
-}
-
-/* Loading animation for links */
-.articles ul li a {
-    position: relative;
-    display: inline-block;
-}
-
-.articles ul li a::after {
-    content: "";
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background: #7FE173;
-    transition: width 0.3s ease-in-out;
-    box-shadow: 0 0 5px #7FE173;
-}
-
-.articles ul li a:hover::after {
     width: 100%;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
 }
 
-/* Add a "loading" dot animation when hovering over links */
-.articles ul li a:hover::before {
-    content: ">";
+.video-container iframe {
     position: absolute;
-    left: -30px;
-    color: #7FE173;
-    animation: loadingDots 1s infinite;
-    width: 25px;         /* Fixed width for the animation container */
-    text-align: right;   /* Align the arrows to the right side of this container */
-    overflow: hidden;    /* Ensure it doesn't spill out */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Animations */
+@keyframes blink {
+    50% { opacity: 0; }
 }
 
 @keyframes loadingDots {
@@ -314,135 +268,49 @@ h2::after {
     100% { content: ">"; }
 }
 
-/* Terminal-style headers */
-h2, h4 {
-    position: relative;
-    padding-left: 20px;
-}
-
-h2::before, h4::before {
-    content: ">";
-    position: absolute;
-    left: 0;
-    color: #7FE173;
-}
-
-/* Add a subtle pulse to code blocks */
-.articles pre {
-    animation: pulse 4s infinite;
-}
-
-@keyframes pulse {
-    0% { box-shadow: inset 0 0 10px rgba(127, 225, 115, 0.2); }
-    50% { box-shadow: inset 0 0 15px rgba(127, 225, 115, 0.3); }
-    100% { box-shadow: inset 0 0 10px rgba(127, 225, 115, 0.2); }
-}
-
-body::after {
-    content: "◉ CONNECTED";
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    font-size: 12px;
-    color: #7FE173;
-    animation: blink 2s infinite;
-}
-
-@keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-}
-
-.wave-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;  /* Put it behind all content */
-    opacity: 0.3; /* Make it subtle */
-    pointer-events: none; /* Make it non-interactive */
-}
-
-.wave-background svg {
-    width: 100%;
-    height: 100%;
-}
-
-/* Make it more subtle on mobile */
+/* Mobile responsiveness */
 @media screen and (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    .content {
+        max-width: 100%;
+        padding: 10px;
+    }
+
+    .navi-container {
+        width: 40px;
+        height: 40px;
+        bottom: 10px;
+        right: 10px;
+    }
+
+    .navi-container svg {
+        max-width: 40px;
+        max-height: 40px;
+    }
+
+    .articles ul li {
+        padding-left: 25px;
+        margin-left: 20px;
+    }
+
     .wave-background {
         opacity: 0.15;
     }
 }
-.terminal-header {
-    font-family: monospace;
-    color: #7FE173;
-    margin-bottom: 20px;
-    padding: 10px;
-    border: 1px solid #7FE173;
-}
 
-.blink {
-    animation: blink 1s infinite;
-}
-
-@keyframes blink {
-    50% { opacity: 0; }
-}
-
-.construction-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 40px 0;
-}
-
-.construction-container svg {
-    width: 300px;
-    height: 300px;
-}
-
-.terminal-text {
-    font-family: monospace;
-    color: #7FE173;
-    margin-top: 20px;
-}
-
-.typewriter {
-    overflow: hidden;
-    white-space: nowrap;
-    border-right: 2px solid #7FE173;
-    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
-    margin: 0;
-    padding: 5px 0;
-}
-
-.delay-1 {
-    animation-delay: 1s;
-}
-
-.delay-2 {
-    animation-delay: 2s;
-}
-
-@keyframes typing {
-    from { width: 0 }
-    to { width: 100% }
-}
-
-@keyframes blink-caret {
-    from, to { border-color: transparent }
-    50% { border-color: #7FE173 }
-}
-
-@media screen and (max-width: 600px) {
-    .construction-container svg {
-        width: 200px;
-        height: 200px;
+@media screen and (max-width: 400px) {
+    .navi-container {
+        width: 32px;
+        height: 32px;
+        bottom: 8px;
+        right: 8px;
     }
 
-    .terminal-text {
-        font-size: 14px;
+    .navi-container svg {
+        max-width: 32px;
+        max-height: 32px;
     }
 }
