@@ -7,10 +7,73 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <div class="header"></div>
+    <div class="header">
+      <a href="index.html"><img src="test6.png" alt="Home"></a>
+    </div>
+    <div class="navi-container">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+        <!-- Monitor -->
+        <rect x="6" y="4" width="20" height="16" fill="none" stroke="#7FE173" stroke-width="2"/>
+        
+        <!-- Screen (blinking) -->
+        <rect x="8" y="6" width="16" height="12" fill="#7FE173" opacity="0.8">
+          <animate 
+            attributeName="opacity"
+            values="0.8;0.3;0.8"
+            dur="2s"
+            repeatCount="indefinite"/>
+        </rect>
+        
+        <!-- Stand -->
+        <path d="M10 20 L22 20 L24 24 L8 24" fill="none" stroke="#7FE173" stroke-width="2"/>
+        
+        <!-- Keyboard -->
+        <rect x="8" y="25" width="16" height="3" fill="none" stroke="#7FE173" stroke-width="2"/>
+        
+        <!-- Screen content (terminal cursor) -->
+        <rect x="10" y="8" width="2" height="2" fill="#0a0a0a">
+          <animate 
+            attributeName="opacity"
+            values="1;0;1"
+            dur="1s"
+            repeatCount="indefinite"/>
+        </rect>
+      </svg>
+    </div>
+    <div class="wave-background">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100">
+        <path d="M0,50 Q250,0 500,50 T1000,50" fill="none" stroke="#7FE173" stroke-width="1" opacity="0.3">
+          <animate
+            attributeName="d"
+            values="M0,50 Q250,0 500,50 T1000,50;
+                    M0,50 Q250,100 500,50 T1000,50;
+                    M0,50 Q250,0 500,50 T1000,50"
+            dur="10s"
+            repeatCount="indefinite"/>
+        </path>
+        <path d="M0,50 Q250,100 500,50 T1000,50" fill="none" stroke="#7FE173" stroke-width="1" opacity="0.2">
+          <animate
+            attributeName="d"
+            values="M0,50 Q250,100 500,50 T1000,50;
+                    M0,50 Q250,0 500,50 T1000,50;
+                    M0,50 Q250,100 500,50 T1000,50"
+            dur="15s"
+            repeatCount="indefinite"/>
+        </path>
+      </svg>
+    </div>
     <div class="content">
       <h2>Some Useful gdbinit Options For  Debugging C and C++ code</h2>
-      <h4>Intro</h4>
+      <h4>Sections</h4>
+      <div class="articles">
+        <ul>
+          <li><a href="#intro">Intro</a></li>
+          <li><a href="#options">Options</a></li>
+          <li><a href="#visual">Visually Pleasing gdbinit</a></li>
+          <li><a href="#extras">Extras</a></li>
+        </ul>
+      </div>
+      <h4 id"intro">Intro</h4>
       <div class="articles">
         <p><i>gdbinit</i> is simply a configuration file that <i>gdb</i> uses when the program is initialised.</p>
         <p>It's not created by default; I need to do it explicitly.</p>
@@ -21,7 +84,7 @@
           <li>I can set different configuration options for <i>gdb</i> depending on the project that I'm working on.</li>
         </ol>
       </div>
-      <h4>Options</h4>
+      <h4 id="options">Options</h4>
       <div class="articles">
         <u>Allowing gdb to Read The .gdbinit File From My Project's Directory</u>
         <p>By default, <i>gdb</i> doesn't read the <i>.gdbinit</i> file from my project's directory. Security reasons. To allow it, I simply need to add this option to my <i>~/.config/gdb/gdbinit</i>:</p>
@@ -74,7 +137,7 @@ warning: 624	/usr/src/debug/gcc/gcc-build/x86_64-pc-linux-gnu/libstdc++-v3/inclu
         <p>However, there's a clear drawback: the path is hardcoded. I might need to change this. It's not portable.</p>
         <p>The documentation for this command can be found <a href="https://sourceware.org/gdb/current/onlinedocs/gdb.html/Skipping-Over-Functions-and-Files.html">here</a>.</p>
       </div>
-      <h4>Visually Pleasing .gdbinit</h4>
+      <h4 id="visual">Visually Pleasing gdbinit</h4>
       <div class="articles">
         <p>There's an impressive project on GitHub called <i>GDB dashboard</i> that aims to improve my debugging experience by showing as much information as it can while I'm debugging my program.</p>
         <p>I can find the link <a href="https://github.com/cyrus-and/gdb-dashboard/tree/master">here</a></p>
@@ -82,7 +145,7 @@ warning: 624	/usr/src/debug/gcc/gcc-build/x86_64-pc-linux-gnu/libstdc++-v3/inclu
         <p>Last time I tried that configuration file I had some problems, for example, <i>gdb</i> was running way slower in some scenarios, and C++ support wasn't the best.</p>
         <p>I also feel overwhelmed with that amount of information.</p>
       </div>
-      <h4>Extras</h4>
+      <h4 id="extras">Extras</h4>
       <div class="articles">
         <p>Sometimes outputting variables can be ugly, especially if they contain lots of elements:</p>
         <p>For example:</p>

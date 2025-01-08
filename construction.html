@@ -7,14 +7,123 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <div class="header"></div>
-    
+    <div class="header">
+      <a href="index.html"><img src="test6.png" alt="Home"></a>
+    </div>
+    <div class="navi-container">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+        <!-- Monitor -->
+        <rect x="6" y="4" width="20" height="16" fill="none" stroke="#7FE173" stroke-width="2"/>
+        
+        <!-- Screen (blinking) -->
+        <rect x="8" y="6" width="16" height="12" fill="#7FE173" opacity="0.8">
+          <animate 
+            attributeName="opacity"
+            values="0.8;0.3;0.8"
+            dur="2s"
+            repeatCount="indefinite"/>
+        </rect>
+        
+        <!-- Stand -->
+        <path d="M10 20 L22 20 L24 24 L8 24" fill="none" stroke="#7FE173" stroke-width="2"/>
+        
+        <!-- Keyboard -->
+        <rect x="8" y="25" width="16" height="3" fill="none" stroke="#7FE173" stroke-width="2"/>
+        
+        <!-- Screen content (terminal cursor) -->
+        <rect x="10" y="8" width="2" height="2" fill="#0a0a0a">
+          <animate 
+            attributeName="opacity"
+            values="1;0;1"
+            dur="1s"
+            repeatCount="indefinite"/>
+        </rect>
+      </svg>
+    </div>
+    <div class="wave-background">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100">
+        <path d="M0,50 Q250,0 500,50 T1000,50" fill="none" stroke="#7FE173" stroke-width="1" opacity="0.3">
+          <animate
+            attributeName="d"
+            values="M0,50 Q250,0 500,50 T1000,50;
+                    M0,50 Q250,100 500,50 T1000,50;
+                    M0,50 Q250,0 500,50 T1000,50"
+            dur="10s"
+            repeatCount="indefinite"/>
+        </path>
+        <path d="M0,50 Q250,100 500,50 T1000,50" fill="none" stroke="#7FE173" stroke-width="1" opacity="0.2">
+          <animate
+            attributeName="d"
+            values="M0,50 Q250,100 500,50 T1000,50;
+                    M0,50 Q250,0 500,50 T1000,50;
+                    M0,50 Q250,100 500,50 T1000,50"
+            dur="15s"
+            repeatCount="indefinite"/>
+        </path>
+      </svg>
+    </div>
+   
     <div class="content">
-
       <div class="articles">
-        <img src="construction.gif">
+        <div class="terminal-header">
+          <span class="blink">></span> SYSTEM STATUS: MAINTENANCE
+        </div>
+        <div class="construction-container">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+            <!-- Grid background -->
+            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#7FE173" stroke-width="0.5" opacity="0.2"/>
+            </pattern>
+            <rect width="200" height="200" fill="url(#grid)"/>
+            
+            <!-- Warning stripes -->
+            <pattern id="warning" width="20" height="20" patternUnits="userSpaceOnUse">
+              <path d="M0 20L20 0" stroke="#7FE173" stroke-width="10" opacity="0.2">
+                <animate attributeName="opacity" values="0.2;0.4;0.2" dur="2s" repeatCount="indefinite"/>
+              </path>
+            </pattern>
+            
+            <!-- Main content -->
+            <g transform="translate(40,40)">
+              <!-- Terminal screen frame -->
+              <rect x="0" y="0" width="120" height="80" fill="none" stroke="#7FE173" stroke-width="2"/>
+              
+              <!-- Screen content -->
+              <rect x="5" y="5" width="110" height="70" fill="#0a0a0a"/>
+              
+              <!-- Blinking text -->
+              <text x="15" y="30" fill="#7FE173" font-family="monospace" font-size="12">
+                SYSTEM UPGRADE
+                <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/>
+              </text>
+              
+              <!-- Loading bar -->
+              <rect x="15" y="40" width="90" height="10" fill="none" stroke="#7FE173" stroke-width="1"/>
+              <rect x="15" y="40" width="0" height="10" fill="#7FE173">
+                <animate attributeName="width" values="0;90" dur="3s" repeatCount="indefinite"/>
+              </rect>
+              
+              <!-- Status text -->
+              <text x="15" y="65" fill="#7FE173" font-family="monospace" font-size="8">
+                STATUS: REBUILDING...
+              </text>
+            </g>
+            
+            <!-- Moving dots -->
+            <circle cx="20" cy="180" r="2" fill="#7FE173">
+              <animate attributeName="cx" values="20;180;20" dur="4s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="180" cy="20" r="2" fill="#7FE173">
+              <animate attributeName="cy" values="20;180;20" dur="4s" repeatCount="indefinite"/>
+            </circle>
+          </svg>
+        </div>
+        <div class="terminal-text">
+          <p class="typewriter">INITIATING SYSTEM MAINTENANCE...</p>
+          <p class="typewriter delay-1">UPDATING PROTOCOLS...</p>
+          <p class="typewriter delay-2">PLEASE STAND BY...</p>
+        </div>
       </div>
-
     </div>
 
     <footer>

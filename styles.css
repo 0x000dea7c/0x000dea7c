@@ -1,7 +1,7 @@
 body {
-    background-color: #000000;
-    color: #00FF00;
-    font-family: monospace, "Courier New", Courier;
+    background-color: #0a0a0a;  /* Slightly softer than pure black */
+    color: #7FE173;            /* A softer green, easier on the eyes */
+    font-family: "Courier Prime", "Lucida Console", monospace;
     margin: 0;
     padding: 20px;
     font-size: 14px;
@@ -20,18 +20,41 @@ body {
     pre, code {
         font-size: 12px;
     }
+
+    .articles ul li {
+        padding-left: 25px;  /* Reduced space for smaller icon */
+        margin-left: 20px;   /* Reduced space for loading animation */
+    }
+
+    .articles ul li::before {
+        width: 20px;         /* Smaller icon */
+        height: 20px;
+    }
+
+    /* Also adjust the loading animation position for mobile */
+    .articles ul li a:hover::before {
+        left: -20px;        /* Slightly closer to the text */
+    }
 }
 
 .header {
-    background-image: url('test6.png');
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
     height: 200px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 30px;
+    margin-top: 15px;
+}
+
+.header img {
+    height: 200px;
+    width: auto;
+    object-fit: contain;
+}
+
+.header img:hover {
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
 }
 
 .idx_footer {
@@ -72,20 +95,24 @@ body {
 }
 
 .articles {
-    border: 1px solid #00FF00;
+    border: 1px solid #7FE173;
+    /* Add a subtle glow effect */
+    box-shadow: 0 0 5px #7FE173;
+    background-color: rgba(10, 10, 10, 0.8);
     padding: 20px;
-    overflow-x: auto;           /* idk what this does lol */
+    overflow-x: auto;
     margin: 0 auto;
 }
 
 a {
-    color: #00FF00;
-    text-decoration: none;
+    color: #7FE173;
+    transition: color 0.3s, text-shadow 0.3s;
 }
 
 a:hover {
-    color: #FFFFFF;
-    text-decoration: underline;
+    color: #9FF193;
+    text-shadow: 0 0 5px #7FE173;
+    text-decoration: none;
 }
 
 ul {
@@ -148,4 +175,265 @@ h4 {
     left: 0;
     width: 100%;
     height: 100%;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.1),
+        rgba(0, 0, 0, 0.1) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.3;
+}
+
+/* Add a blinking cursor to headings */
+h2::after {
+    content: "_";
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+.articles pre {
+    background: #0a0a0a;
+    border: 1px solid #7FE173;
+    box-shadow: inset 0 0 10px rgba(127, 225, 115, 0.2);
+    padding: 15px;
+    margin: 10px 0;
+    position: relative;
+}
+
+.articles pre::before {
+    content: "";
+    color: #7FE173;
+    opacity: 0.7;
+}
+
+/* Navi container - fixed in bottom right corner */
+.navi-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 64px;
+    height: 64px;
+    z-index: 1000;
+    opacity: 0.8;
+    transition: opacity 0.3s;
+}
+
+.navi-container:hover {
+    opacity: 1;
+}
+
+/* Adjust size for mobile devices */
+@media screen and (max-width: 600px) {
+    .navi-container {
+        width: 40px;    /* Smaller size */
+        height: 40px;
+        bottom: 10px;   /* Closer to the edge */
+        right: 10px;
+    }
+}
+
+/* Even smaller for very small screens */
+@media screen and (max-width: 400px) {
+    .navi-container {
+        width: 32px;    /* Smallest size */
+        height: 32px;
+        bottom: 8px;
+        right: 8px;
+    }
+}
+
+/* List items with computer icon */
+.articles ul li {
+    position: relative;
+    padding-left: 40px;  /* Space for the icon */
+    margin-left: 30px;
+}
+
+/* Loading animation for links */
+.articles ul li a {
+    position: relative;
+    display: inline-block;
+}
+
+.articles ul li a::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: #7FE173;
+    transition: width 0.3s ease-in-out;
+    box-shadow: 0 0 5px #7FE173;
+}
+
+.articles ul li a:hover::after {
+    width: 100%;
+}
+
+/* Add a "loading" dot animation when hovering over links */
+.articles ul li a:hover::before {
+    content: ">";
+    position: absolute;
+    left: -30px;
+    color: #7FE173;
+    animation: loadingDots 1s infinite;
+    width: 25px;         /* Fixed width for the animation container */
+    text-align: right;   /* Align the arrows to the right side of this container */
+    overflow: hidden;    /* Ensure it doesn't spill out */
+}
+
+@keyframes loadingDots {
+    0% { content: ">"; }
+    33% { content: ">>"; }
+    66% { content: ">>>"; }
+    100% { content: ">"; }
+}
+
+/* Terminal-style headers */
+h2, h4 {
+    position: relative;
+    padding-left: 20px;
+}
+
+h2::before, h4::before {
+    content: ">";
+    position: absolute;
+    left: 0;
+    color: #7FE173;
+}
+
+/* Add a subtle pulse to code blocks */
+.articles pre {
+    animation: pulse 4s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: inset 0 0 10px rgba(127, 225, 115, 0.2); }
+    50% { box-shadow: inset 0 0 15px rgba(127, 225, 115, 0.3); }
+    100% { box-shadow: inset 0 0 10px rgba(127, 225, 115, 0.2); }
+}
+
+body::after {
+    content: "◉ CONNECTED";
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: 12px;
+    color: #7FE173;
+    animation: blink 2s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.wave-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;  /* Put it behind all content */
+    opacity: 0.3; /* Make it subtle */
+    pointer-events: none; /* Make it non-interactive */
+}
+
+.wave-background svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Make it more subtle on mobile */
+@media screen and (max-width: 600px) {
+    .wave-background {
+        opacity: 0.15;
+    }
+}
+.terminal-header {
+    font-family: monospace;
+    color: #7FE173;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #7FE173;
+}
+
+.blink {
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+.construction-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 40px 0;
+}
+
+.construction-container svg {
+    width: 300px;
+    height: 300px;
+}
+
+.terminal-text {
+    font-family: monospace;
+    color: #7FE173;
+    margin-top: 20px;
+}
+
+.typewriter {
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid #7FE173;
+    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+    margin: 0;
+    padding: 5px 0;
+}
+
+.delay-1 {
+    animation-delay: 1s;
+}
+
+.delay-2 {
+    animation-delay: 2s;
+}
+
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: #7FE173 }
+}
+
+@media screen and (max-width: 600px) {
+    .construction-container svg {
+        width: 200px;
+        height: 200px;
+    }
+
+    .terminal-text {
+        font-size: 14px;
+    }
 }

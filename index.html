@@ -7,10 +7,62 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <div class="header"></div>
-    
+    <div class="header">
+      <a href="index.html"><img src="test6.png" alt="Home"></a>
+    </div>
+    <div class="navi-container">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+        <!-- Monitor -->
+        <rect x="6" y="4" width="20" height="16" fill="none" stroke="#7FE173" stroke-width="2"/>
+        
+        <!-- Screen (blinking) -->
+        <rect x="8" y="6" width="16" height="12" fill="#7FE173" opacity="0.8">
+          <animate 
+            attributeName="opacity"
+            values="0.8;0.3;0.8"
+            dur="2s"
+            repeatCount="indefinite"/>
+        </rect>
+        
+        <!-- Stand -->
+        <path d="M10 20 L22 20 L24 24 L8 24" fill="none" stroke="#7FE173" stroke-width="2"/>
+        
+        <!-- Keyboard -->
+        <rect x="8" y="25" width="16" height="3" fill="none" stroke="#7FE173" stroke-width="2"/>
+        
+        <!-- Screen content (terminal cursor) -->
+        <rect x="10" y="8" width="2" height="2" fill="#0a0a0a">
+          <animate 
+            attributeName="opacity"
+            values="1;0;1"
+            dur="1s"
+            repeatCount="indefinite"/>
+        </rect>
+      </svg>
+    </div>
+    <div class="wave-background">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100">
+        <path d="M0,50 Q250,0 500,50 T1000,50" fill="none" stroke="#7FE173" stroke-width="1" opacity="0.3">
+          <animate
+            attributeName="d"
+            values="M0,50 Q250,0 500,50 T1000,50;
+                    M0,50 Q250,100 500,50 T1000,50;
+                    M0,50 Q250,0 500,50 T1000,50"
+            dur="10s"
+            repeatCount="indefinite"/>
+        </path>
+        <path d="M0,50 Q250,100 500,50 T1000,50" fill="none" stroke="#7FE173" stroke-width="1" opacity="0.2">
+          <animate
+            attributeName="d"
+            values="M0,50 Q250,100 500,50 T1000,50;
+                    M0,50 Q250,0 500,50 T1000,50;
+                    M0,50 Q250,100 500,50 T1000,50"
+            dur="15s"
+            repeatCount="indefinite"/>
+        </path>
+      </svg>
+    </div>
     <div class="content">
-
       <h2>Hi</h2>
       <div class="welcome">
         <p>I will be writing about stuff that I'm doing. This is a personal archive. Most code will be written in C or C++. Sometimes I will post misc stuff like Makefiles, CMakeLists or bash scripts. I'm sorry if I make mistakes or some explanations are half assed (that is probably because I didn't understand it fully)</p>
