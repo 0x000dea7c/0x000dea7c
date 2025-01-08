@@ -260,33 +260,35 @@ a:hover {
     font-family: monospace;
     color: #7FE173;
     margin-top: 20px;
+    max-width: 600px;
 }
 
 .typewriter {
     overflow: hidden;
     white-space: nowrap;
-    border-right: 2px solid #7FE173;
-    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+    position: relative;
+    width: 0;
     margin: 0;
     padding: 5px 0;
+    border-right: 2px solid #7FE173;
+    animation:
+        typing 3.5s steps(40) forwards,
+        blink-caret 0.75s step-end infinite; /* Added blink animation */
 }
 
-.delay-1 {
-    animation-delay: 1s;
-}
-
-.delay-2 {
-    animation-delay: 2s;
-}
+/* Different timing for each line */
+.typewriter:nth-child(1) { animation-delay: 0s; }
+.typewriter:nth-child(2) { animation-delay: 3.5s; }  /* Start after first line */
+.typewriter:nth-child(3) { animation-delay: 7s; }    /* Start after second line */
 
 @keyframes typing {
-    from { width: 0 }
-    to { width: 100% }
+    from { width: 0; }
+    to { width: 100%; }
 }
 
 @keyframes blink-caret {
-    from, to { border-color: transparent }
-    50% { border-color: #7FE173 }
+    from, to { border-color: transparent; }
+    50% { border-color: #7FE173; }
 }
 
 /* Animations */
