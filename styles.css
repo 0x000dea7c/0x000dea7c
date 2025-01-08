@@ -332,6 +332,10 @@ a:hover {
     .wave-background {
         opacity: 0.15;
     }
+
+    .terminal-text {
+        font-size: 14px;
+    }
 }
 
 @media screen and (max-width: 400px) {
