@@ -227,6 +227,9 @@ GAME_API void game_render(game_ctx *ctx);
 
 GAME_API void game_update(game_ctx *ctx, __attribute__((unused)) float dt)
 {
+        /* IMPORTANT NOTE: in this function I only want to update the game's physics
+        and logic, not the framebuffer, but for demonstration purposes I will have
+        code in both functions. */
 	uint32_t const colour = 0x000000FF;
 	for (uint32_t i = 0; i < ctx-&gt;fb.pixel_count; ++i) {
 		ctx->fb.pixels[i] = colour;
@@ -322,17 +325,23 @@ hot_reload_update(hot_reload_lib_info *lib)
 		return false;
 	}
 
+        /* NOTE: this is to check for errors, read the man page */
+	dlerror();
+
 	/* look for symbols inside this library */
 	upd_tmp.obj_ptr = dlsym(lib->handle, "game_update");
+	char *err = dlerror();
+	if (err) {
+		(void)fprintf(stderr, "couldn't game_update symbol for lib %s: %s\n", lib->path, err);
+		return false;
+	}
+
+	dlerror();
+
 	rend_tmp.obj_ptr = dlsym(lib->handle, "game_render");
-
-	lib->update = upd_tmp.func_ptr;
-	lib->render = rend_tmp.func_ptr;
-
-        /* NOTE: THIS ISN'T THE BEST WAY TO CHECK FOR ERRORS, THE SYMBOL COULD BE NULL AND THAT'D BE VALID! */
-        /* read the man pages! */
-	if (!lib->update || !lib->render) {
-		(void)fprintf(stderr, "couldn't find symbols for lib %s: %s\n", lib->path, dlerror());
+	err = dlerror();
+	if (err) {
+		(void)fprintf(stderr, "couldn't game_render symbol for lib %s: %s\n", lib->path, err);
 		return false;
 	}
 
