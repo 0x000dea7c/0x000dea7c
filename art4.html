@@ -72,18 +72,19 @@
           <li><a href="#example">Example</a></li>
           <li><a href="#file">Creating The File</a></li>
           <li><a href="#howto">How To Use It</a></li>
+          <li><a href="#wild">Wildcards</a></li>
         </ul>
       </div>
       <h4 id"intro">Intro</h4>
       <div class="articles">
-        <p>Who doesn't want to use sanitizers to detect possible undefined behaviours, leaks, buffer overflows, etc, while making a program in C or C++?</p>
+        <p>Who doesn't want to use Sanitizers to detect possible undefined behaviours, leaks, buffer overflows, etc, while making a program in C or C++?</p>
         <p>They're very useful tools!</p>
         <p>However, if I'm using a third party library, it's possible that their developers purposely didn't release certain resources that they've acquired.</p>
         <p>This has an explanation.</p>
         <p>Some purists argue that I should always release what I acquired before, but in modern operating systems, and quite frankly, in any good operating system, these resources are automatically released by the operating system itself when the process finishes.</p>
         <p>That is to say, I might be doing unnecessary work when I'm releasing resources at the end of my application.</p>
         <p>I wouldn't mind if releasing them was cheap, but that isn't always the case.</p>
-        <p>Having said that, these leaks are "controlled," so I don't want sanitizers to notify about them.</p>
+        <p>Having said that, these leaks are "controlled," so I don't want Sanitizers to notify about them.</p>
         <p>To do that, I can use what's called a <i>suppression list</i>.</p>
       </div>
       <h4 id="example">Example</h4>
@@ -106,7 +107,7 @@ main(void)
 }</code></pre>
         <p>Then, I compile it like so: <pre><code>gcc -Wall -fsanitize=address,leak,undefined main.c -o main -lSDL3</code></pre></p>
         <p>Now, I run it: <pre><code>./main</code></pre></p>
-        <p>Here's part of the output provided by sanitizers (the file is 2k lines long):</p>
+        <p>Here's part of the output provided by Sanitizers (the file is 2k lines long):</p>
         <pre><code>Indirect leak of 1 byte(s) in 1 object(s) allocated from:
     #0 0x781349afd891 in malloc /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:69
     #1 0x78134660d6ca  (<unknown module>)
@@ -129,8 +130,8 @@ SUMMARY: AddressSanitizer: 51982 byte(s) leaked in 918 allocation(s).</code></pr
       </div>
       <h4 id="file">Creating The File</h4>
       <div class="articles">
-        <p>Anyways, to supress unwanted errors, I have to create a file, for example <i>lsan_supressions.txt</i>.</p>
-        <p>Then, inside the file, I need to specify the type of error I want to supress and the library where it's originated.</p>
+        <p>Anyways, to suppress unwanted errors, I have to create a file, for example <i>lsan_suppressions.txt</i>.</p>
+        <p>Then, inside the file, I need to specify the type of error I want to suppress and the library where it's originated.</p>
         <p>Something like this:</p>
         <pre><code>leak:libSDL3</code></pre>
       </div>      
@@ -145,7 +146,7 @@ Suppressions used:
     949      54081 libSDL3
 -----------------------------------------------------</code></pre>
         <p>Aha! Much better.</p>
-        <p>Now I will leak some memory myself to see if sanitizers catch them:</p>
+        <p>Now I will leak some memory myself to see if Sanitizers catch them:</p>
         <pre><code>#include &lt;SDL3/SDL.h&gt;
 #include &lt;stdio.h&gt;
 #include &lt;stdlib.h&gt;
@@ -154,7 +155,7 @@ int
 main(void)
 {
 	char *test = malloc(1024*1024);
-	strncpy(test, "Lain", 5);
+	strncpy(test, "Lain", 4);
 
 	if (!SDL_Init(SDL_INIT_VIDEO)) {
 		fprintf(stderr, "Couldn't initialise SDL3.\n");
@@ -189,8 +190,15 @@ Suppressions used:
 -----------------------------------------------------
 
 SUMMARY: AddressSanitizer: 1048576 byte(s) leaked in 1 allocation(s).</code></pre>
-        <p>I can see that sanitizers are catching my leak whilst ignoring SDL3's.</p>
+        <p>I can see that Sanitizers are catching my leak whilst ignoring SDL3's.</p>
         <p>Neat!</p>
+      </div>
+      <h4 id="wild">Wildcards</h4>
+      <div class="articles">
+        <p>Sanitizers also support wildcard syntax.</p>
+        <p>Try it out!</p>
+        <p>For example:</p>
+        <pre><code>address:libSD*</code></pre>
       </div>
     </div>
   </body>
