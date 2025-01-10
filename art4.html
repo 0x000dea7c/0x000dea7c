@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Using a File to Tell Sanitisers to Ignore Leaks From Certain Libs</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="connection-status">◉ CONNECTED</div>
+    <div class="header">
+      <a href="index.html"><img src="test6.png" alt="Home"></a>
+    </div>
+    <div class="navi-container">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+        <!-- Monitor -->
+        <rect x="6" y="4" width="20" height="16" fill="none" stroke="#7FE173" stroke-width="2"/>
+        
+        <!-- Screen (blinking) -->
+        <rect x="8" y="6" width="16" height="12" fill="#7FE173" opacity="0.8">
+          <animate 
+            attributeName="opacity"
+            values="0.8;0.3;0.8"
+            dur="2s"
+            repeatCount="indefinite"/>
+        </rect>
+        
+        <!-- Stand -->
+        <path d="M10 20 L22 20 L24 24 L8 24" fill="none" stroke="#7FE173" stroke-width="2"/>
+        
+        <!-- Keyboard -->
+        <rect x="8" y="25" width="16" height="3" fill="none" stroke="#7FE173" stroke-width="2"/>
+        
+        <!-- Screen content (terminal cursor) -->
+        <rect x="10" y="8" width="2" height="2" fill="#0a0a0a">
+          <animate 
+            attributeName="opacity"
+            values="1;0;1"
+            dur="1s"
+            repeatCount="indefinite"/>
+        </rect>
+      </svg>
+    </div>
+    <div class="wave-background">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100">
+        <path d="M0,50 Q250,0 500,50 T1000,50" fill="none" stroke="#7FE173" stroke-width="1" opacity="0.3">
+          <animate
+            attributeName="d"
+            values="M0,50 Q250,0 500,50 T1000,50;
+                    M0,50 Q250,100 500,50 T1000,50;
+                    M0,50 Q250,0 500,50 T1000,50"
+            dur="10s"
+            repeatCount="indefinite"/>
+        </path>
+        <path d="M0,50 Q250,100 500,50 T1000,50" fill="none" stroke="#7FE173" stroke-width="1" opacity="0.2">
+          <animate
+            attributeName="d"
+            values="M0,50 Q250,100 500,50 T1000,50;
+                    M0,50 Q250,0 500,50 T1000,50;
+                    M0,50 Q250,100 500,50 T1000,50"
+            dur="15s"
+            repeatCount="indefinite"/>
+        </path>
+      </svg>
+    </div>
+    <div class="content">
+      <h2>Using a File to Tell Sanitizers to Ignore Leaks From Certain Libs</h2>
+      <h4>Sections</h4>
+      <div class="articles">
+        <ul>
+          <li><a href="#intro">Intro</a></li>
+          <li><a href="#example">Example</a></li>
+          <li><a href="#file">Creating The File</a></li>
+          <li><a href="#howto">How To Use It</a></li>
+        </ul>
+      </div>
+      <h4 id"intro">Intro</h4>
+      <div class="articles">
+        <p>Who doesn't want to use sanitizers to detect possible undefined behaviours, leaks, buffer overflows, etc, while making a program in C or C++?</p>
+        <p>They're very useful tools!</p>
+        <p>However, if I'm using a third party library, it's possible that their developers purposely didn't release certain resources that they've acquired.</p>
+        <p>This has an explanation.</p>
+        <p>Some purists argue that I should always release what I acquired before, but in modern operating systems, and quite frankly, in any good operating system, these resources are automatically released by the operating system itself when the process finishes.</p>
+        <p>That is to say, I might be doing unnecessary work when I'm releasing resources at the end of my application.</p>
+        <p>I wouldn't mind if releasing them was cheap, but that isn't always the case.</p>
+        <p>Having said that, these leaks are "controlled," so I don't want sanitizers to notify about them.</p>
+        <p>To do that, I can use what's called a <i>suppression list</i>.</p>
+      </div>
+      <h4 id="example">Example</h4>
+      <div class="articles">
+        <p>Here's an example of what I said before.</p>
+        <p>Suppose I have this simple program:</p>
+        <pre><code>#include &lt;SDL3/SDL.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int
+main(void)
+{
+	if (!SDL_Init(SDL_INIT_VIDEO)) {
+		fprintf(stderr, "Couldn't initialise SDL3.\n");
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
+}</code></pre>
+        <p>Then, I compile it like so: <pre><code>gcc -Wall -fsanitize=address,leak,undefined main.c -o main -lSDL3</code></pre></p>
+        <p>Now, I run it: <pre><code>./main</code></pre></p>
+        <p>Here's part of the output provided by sanitizers (the file is 2k lines long):</p>
+        <pre><code>Indirect leak of 1 byte(s) in 1 object(s) allocated from:
+    #0 0x781349afd891 in malloc /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:69
+    #1 0x78134660d6ca  (<unknown module>)
+    #2 0x78134661216c  (<unknown module>)
+    #3 0x7813498708d2 in X11_InitKeyboard (/usr/local/lib/libSDL3.so.0+0x2708d2) (BuildId: 702bed99f78196b19caeec8340b0f694699a92c5)
+    #4 0x78134987dd50 in X11_VideoInit (/usr/local/lib/libSDL3.so.0+0x27dd50) (BuildId: 702bed99f78196b19caeec8340b0f694699a92c5)
+    #5 0x7813497c418d in SDL_VideoInit (/usr/local/lib/libSDL3.so.0+0x1c418d) (BuildId: 702bed99f78196b19caeec8340b0f694699a92c5)
+    #6 0x781349636860 in SDL_InitSubSystem_REAL (/usr/local/lib/libSDL3.so.0+0x36860) (BuildId: 702bed99f78196b19caeec8340b0f694699a92c5)
+    #7 0x781349636b22 in SDL_Init_REAL (/usr/local/lib/libSDL3.so.0+0x36b22) (BuildId: 702bed99f78196b19caeec8340b0f694699a92c5)
+    #8 0x78134966380d in SDL_Init_DEFAULT (/usr/local/lib/libSDL3.so.0+0x6380d) (BuildId: 702bed99f78196b19caeec8340b0f694699a92c5)
+    #9 0x78134966fcad in SDL_Init (/usr/local/lib/libSDL3.so.0+0x6fcad) (BuildId: 702bed99f78196b19caeec8340b0f694699a92c5)
+    #10 0x5c938aa0e24b in main (/home/cut/Source/main+0x124b) (BuildId: 07bdadc81d7cd4078321de3129cc58731c957ca6)
+    #11 0x781348c34e07  (/usr/lib/libc.so.6+0x25e07) (BuildId: 98b3d8e0b8c534c769cb871c438b4f8f3a8e4bf3)
+    #12 0x781348c34ecb in __libc_start_main (/usr/lib/libc.so.6+0x25ecb) (BuildId: 98b3d8e0b8c534c769cb871c438b4f8f3a8e4bf3)
+    #13 0x5c938aa0e164 in _start (/home/cut/Source/main+0x1164) (BuildId: 07bdadc81d7cd4078321de3129cc58731c957ca6)
+
+SUMMARY: AddressSanitizer: 51982 byte(s) leaked in 918 allocation(s).</code></pre>
+        <p>However, this isn't a bug because of what I said before.</p>
+        <a href="https://github.com/libsdl-org/SDL/issues/11648">Also, I think these leaks are not from SDL3 itself.</a>
+      </div>
+      <h4 id="file">Creating The File</h4>
+      <div class="articles">
+        <p>Anyways, to supress unwanted errors, I have to create a file, for example <i>lsan_supressions.txt</i>.</p>
+        <p>Then, inside the file, I need to specify the type of error I want to supress and the library where it's originated.</p>
+        <p>Something like this:</p>
+        <pre><code>leak:libSDL3</code></pre>
+      </div>      
+      <h4 id="howto">How To Use It</h4>
+      <div class="articles">
+        <p>Now, to run the program I need to do this:</p>
+        <pre><code>LSAN_OPTIONS="suppressions=lsan_suppressions.txt" ./main</code></pre>
+        <p>Let's look at the output now:</p>
+        <pre><code>-----------------------------------------------------
+Suppressions used:
+  count      bytes template
+    949      54081 libSDL3
+-----------------------------------------------------</code></pre>
+        <p>Aha! Much better.</p>
+        <p>Now I will leak some memory myself to see if sanitizers catch them:</p>
+        <pre><code>#include &lt;SDL3/SDL.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int
+main(void)
+{
+	char *test = malloc(1024*1024);
+	strncpy(test, "Lain", 5);
+
+	if (!SDL_Init(SDL_INIT_VIDEO)) {
+		fprintf(stderr, "Couldn't initialise SDL3.\n");
+		return EXIT_FAILURE;
+	}
+
+	printf("%s\n", test);
+
+	SDL_Quit();
+
+	return EXIT_SUCCESS;
+}</code></pre>
+        <p>Let's run the program again:</p>
+        <pre><code>LSAN_OPTIONS="suppressions=lsan_suppressions.txt" ./main</code></pre>
+        <p>Here's the output:</p>
+        <pre><code>Lain
+
+=================================================================
+==252656==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 1048576 byte(s) in 1 object(s) allocated from:
+    #0 0x731c08efd891 in malloc /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:69
+    #1 0x62c68ca531fb in main (/home/cut/Source/main+0x11fb) (BuildId: 9b8c6eca885f5aef681ed96de72fd2e83144c3ad)
+    #2 0x731c08034e07  (/usr/lib/libc.so.6+0x25e07) (BuildId: 98b3d8e0b8c534c769cb871c438b4f8f3a8e4bf3)
+    #3 0x731c08034ecb in __libc_start_main (/usr/lib/libc.so.6+0x25ecb) (BuildId: 98b3d8e0b8c534c769cb871c438b4f8f3a8e4bf3)
+    #4 0x62c68ca53114 in _start (/home/cut/Source/main+0x1114) (BuildId: 9b8c6eca885f5aef681ed96de72fd2e83144c3ad)
+
+-----------------------------------------------------
+Suppressions used:
+  count      bytes template
+    949      54081 libSDL3
+-----------------------------------------------------
+
+SUMMARY: AddressSanitizer: 1048576 byte(s) leaked in 1 allocation(s).</code></pre>
+        <p>I can see that sanitizers are catching my leak whilst ignoring SDL3's.</p>
+        <p>Neat!</p>
+      </div>
+    </div>
+  </body>
+</html>
